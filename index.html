@@ -18,33 +18,37 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="meninges/commun/style.css">
 <style>
-  /* Accueil unique : les jeux (un dépôt chacun), puis l'entraînement express (exercices de meninges/). */
-  .tete { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
-  .tete h1 { font-family: var(--f-display); font-weight: 800; font-size: 2.2rem; margin: 0; letter-spacing: -.02em; }
-  .tete p { margin: 0; color: var(--muted); line-height: 1.5; }
-  .rubrique { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: 6px; }
-  .rubrique h2 { font-family: var(--f-display); font-size: 1.15rem; margin: 0; }
-  .jour { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: .85rem; color: var(--muted); }
-  .jour .points { display: flex; gap: 4px; }
-  .jour .points i { width: 10px; height: 10px; border-radius: 50%; background: var(--key); display: block; }
-  .jour .points i.fait { background: var(--c); }
+  /* Accueil unique : les jeux (un dépôt chacun), puis l'entraînement express (exercices de meninges/).
+     Cartes : icône à gauche, texte sur toute la largeur restante, infos (record) sous la description. */
+  .tete { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; }
+  .tete h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.9rem, 9vw, 2.4rem); margin: 0; letter-spacing: -.02em; line-height: 1.05; }
+  .tete p { margin: 0; color: var(--muted); line-height: 1.5; max-width: 34ch; }
+  .rubrique { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .rubrique h2 { font-family: var(--f-display); font-size: .8rem; font-weight: 700; margin: 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .jour { display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .jour .barre-jour { flex: 1; height: 6px; border-radius: 99px; background: var(--key); overflow: hidden; display: flex; gap: 2px; }
+  .jour .barre-jour i { flex: 1; background: transparent; }
+  .jour .barre-jour i.fait { background: var(--c); }
   .liste { display: flex; flex-direction: column; gap: 10px; list-style: none; margin: 0; padding: 0; }
   .carte-jeu {
-    display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 14px;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px;
-    text-decoration: none; color: var(--ink); touch-action: manipulation;
+    display: grid; grid-template-columns: 48px minmax(0, 1fr) 14px; align-items: center; gap: 14px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px;
+    text-decoration: none; color: var(--ink); touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
-  .carte-jeu:active { transform: scale(.99); }
-  .carte-jeu .pastille { width: 52px; height: 52px; border-radius: 13px; background: var(--c); display: grid; place-items: center;
-    color: #fff; font: 800 1.15rem var(--f-display); letter-spacing: -.02em; object-fit: cover; }
-  .carte-jeu .txt { min-width: 0; }
-  .carte-jeu strong { display: block; font-family: var(--f-display); font-size: 1.08rem; }
-  .carte-jeu .resume { display: block; color: var(--muted); font-size: .88rem; line-height: 1.35; margin-top: 2px; }
-  .carte-jeu .rec { text-align: right; font-size: .75rem; color: var(--muted); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .carte-jeu .rec b { display: block; font-size: 1rem; color: var(--ink); }
-  .carte-jeu .fait { color: var(--bon); font-size: .75rem; display: block; }
-  .carte-jeu .fleche { font-size: 1.3rem; color: var(--muted); }
-  .pied { color: var(--muted); font-size: .8rem; text-align: center; line-height: 1.5; margin: 6px 0 0; }
+  .carte-jeu:active { transform: scale(.985); }
+  .carte-jeu:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pastille { width: 48px; height: 48px; border-radius: 13px; background: var(--c, var(--key)); display: grid; place-items: center; color: #fff; align-self: start; }
+  img.pastille { display: block; object-fit: cover; }
+  .pastille svg { width: 26px; height: 26px; }
+  .txt { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .txt strong { font-family: var(--f-display); font-size: 1.06rem; line-height: 1.2; }
+  .txt .resume { color: var(--muted); font-size: .88rem; line-height: 1.4; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .meta span { font-size: .75rem; font-weight: 600; padding: 3px 8px; border-radius: 99px; background: var(--key); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .meta span.nouveau { background: transparent; border: 1px dashed var(--line); color: var(--muted); }
+  .meta span.fait { background: color-mix(in srgb, var(--bon) 18%, transparent); color: var(--bon); }
+  .chevron { color: var(--muted); }
+  .pied { color: var(--muted); font-size: .8rem; text-align: center; line-height: 1.5; margin: 10px 0 4px; }
 </style>
 </head>
 <body>
@@ -54,11 +58,16 @@
     <p>Mes petits jeux pour apprendre et faire travailler sa tête.</p>
   </header>
 
-  <div class="rubrique"><h2>Jeux</h2></div>
-  <ul class="liste" id="jeux"></ul>
+  <section class="rubrique" aria-labelledby="t-jeux">
+    <h2 id="t-jeux">Jeux</h2>
+    <ul class="liste" id="jeux"></ul>
+  </section>
 
-  <div class="rubrique"><h2>Entraînement express</h2><div class="jour" id="jour"></div></div>
-  <ul class="liste" id="exercices"></ul>
+  <section class="rubrique" aria-labelledby="t-exo">
+    <h2 id="t-exo">Entraînement express</h2>
+    <div class="jour" id="jour"></div>
+    <ul class="liste" id="exercices"></ul>
+  </section>
 
   <p class="pied">Tes scores restent dans ce téléphone.</p>
 </div>
@@ -68,27 +77,37 @@
 const JEUX = [
   { nom: "Le Mot Juste", lien: "le-mot-juste/", icone: "le-mot-juste/icones/icone-192.png", texte: "Trouve le mot de 5 à 8 lettres en 6 essais, puis découvre sa définition." }
 ];
-// Symboles des exercices d'entraînement (catalogue dans meninges/commun/commun.js)
-const SYMBOLES = { "calcul-eclair": "×", "couleurs-piegees": "Aa", "memoire-mots": "≡", "maison-qui-compte": "⌂", "ordre-nombres": "123", "syllabes": "a·b", "lecture-rapide": "¶" };
+// Icônes des exercices (SVG au trait, 24×24)
+const ICONES = {
+  "calcul-eclair": '<path d="M7 4v6M4 7h6M14 7h6M5 15l4 4M9 15l-4 4M14 16h6M14 19h6"/>',
+  "couleurs-piegees": '<circle cx="9" cy="9" r="5"/><circle cx="15" cy="9" r="5"/><circle cx="12" cy="15" r="5"/>',
+  "memoire-mots": '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  "maison-qui-compte": '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+  "ordre-nombres": '<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/><path d="M7 5.5v3"/>',
+  "syllabes": '<path d="M4 10v4M8 7v10M12 9v6M16 5v14M20 10v4"/>',
+  "lecture-rapide": '<path d="M2 5c3-1 6-1 10 1 4-2 7-2 10-1v14c-3-1-6-1-10 1-4-2-7-2-10-1z"/><path d="M12 6v14"/>'
+};
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const CHEVRON = '<svg class="chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
 
 const M = Meninges, e = M.echap;
 document.getElementById("jeux").innerHTML = JEUX.map(j => `<li><a class="carte-jeu" href="${e(j.lien)}">
-  <img class="pastille" src="${e(j.icone)}" alt="" width="52" height="52">
-  <span class="txt"><strong>${e(j.nom)}</strong><span class="resume">${e(j.texte)}</span></span>
-  <span class="fleche" aria-hidden="true">→</span></a></li>`).join("");
+  <img class="pastille" src="${e(j.icone)}" alt="" width="48" height="48">
+  <span class="txt"><strong>${e(j.nom)}</strong><span class="resume">${e(j.texte)}</span></span>${CHEVRON}</a></li>`).join("");
 
 const auj = new Date().toISOString().slice(0, 10);
 const faitAuj = slug => M.historique(slug).some(h => h.date === auj);
 document.getElementById("exercices").innerHTML = M.EXERCICES.map(x => {
   const r = M.meilleur(x.slug);
+  const meta = (r === null ? '<span class="nouveau">Pas encore joué</span>' : `<span>Record : ${e(M.formatScore(x.slug, r))}</span>`) +
+               (faitAuj(x.slug) ? '<span class="fait">✓ Fait aujourd\'hui</span>' : "");
   return `<li><a class="carte-jeu" href="meninges/exercices/${x.slug}/" style="--c:${x.couleur}">
-    <span class="pastille" aria-hidden="true">${e(SYMBOLES[x.slug] || x.nom[0])}</span>
-    <span class="txt"><strong>${e(x.nom)}</strong><span class="resume">${e(x.resume)}</span></span>
-    <span class="rec">${r === null ? "à découvrir" : "record<b>" + e(M.formatScore(x.slug, r)) + "</b>"}${faitAuj(x.slug) ? '<span class="fait">✓ aujourd\'hui</span>' : ""}</span>
+    <span class="pastille">${svg(ICONES[x.slug] || "")}</span>
+    <span class="txt"><strong>${e(x.nom)}</strong><span class="resume">${e(x.resume)}</span><span class="meta">${meta}</span></span>${CHEVRON}
   </a></li>`;
 }).join("");
 const nb = M.EXERCICES.filter(x => faitAuj(x.slug)).length;
-document.getElementById("jour").innerHTML = `<span>${nb} / ${M.EXERCICES.length}</span><span class="points">` +
+document.getElementById("jour").innerHTML = `<span>Aujourd'hui : ${nb} sur ${M.EXERCICES.length}</span><span class="barre-jour" aria-hidden="true">` +
   M.EXERCICES.map(x => `<i class="${faitAuj(x.slug) ? "fait" : ""}" style="--c:${x.couleur}"></i>`).join("") + "</span>";
 </script>
 </body>
