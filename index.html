@@ -20,15 +20,9 @@
 <style>
   /* Accueil unique : les jeux (un dépôt chacun), puis l'entraînement express (exercices de meninges/).
      Cartes : icône à gauche, texte sur toute la largeur restante, infos (record) sous la description. */
-  .tete { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; }
-  .tete h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.9rem, 9vw, 2.4rem); margin: 0; letter-spacing: -.02em; line-height: 1.05; }
+  .tete { padding-top: 4px; }
+  .tete h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.7rem, 8vw, 2.1rem); margin: 0; letter-spacing: -.02em; line-height: 1.1; }
   .tete p { margin: 0; color: var(--muted); line-height: 1.5; max-width: 34ch; }
-  .rubrique { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-  .rubrique h2 { font-family: var(--f-display); font-size: .8rem; font-weight: 700; margin: 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-  .jour { display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .jour .barre-jour { flex: 1; height: 6px; border-radius: 99px; background: var(--key); overflow: hidden; display: flex; gap: 2px; }
-  .jour .barre-jour i { flex: 1; background: transparent; }
-  .jour .barre-jour i.fait { background: var(--c); }
   .liste { display: flex; flex-direction: column; gap: 10px; list-style: none; margin: 0; padding: 0; }
   .carte-jeu {
     display: grid; grid-template-columns: 48px minmax(0, 1fr) 14px; align-items: center; gap: 14px;
@@ -53,21 +47,8 @@
 </head>
 <body>
 <div class="app">
-  <header class="tete">
-    <h1>Méninges</h1>
-    <p>Mes petits jeux pour apprendre et faire travailler sa tête.</p>
-  </header>
-
-  <section class="rubrique" aria-labelledby="t-jeux">
-    <h2 id="t-jeux">Jeux</h2>
-    <ul class="liste" id="jeux"></ul>
-  </section>
-
-  <section class="rubrique" aria-labelledby="t-exo">
-    <h2 id="t-exo">Entraînement express</h2>
-    <div class="jour" id="jour"></div>
-    <ul class="liste" id="exercices"></ul>
-  </section>
+  <header class="tete"><h1>Méninges</h1></header>
+  <ul class="liste" id="jeux" aria-label="Jeux"></ul>
 
   <p class="pied">Tes scores restent dans ce téléphone.</p>
 </div>
@@ -75,7 +56,7 @@
 <script>
 // Pour ajouter un jeu : une ligne ici (le jeu vit dans son propre dépôt GitHub, à l'adresse /nom-du-depot/).
 const JEUX = [
-  { nom: "Le Mot Juste", lien: "le-mot-juste/", icone: "le-mot-juste/icones/icone-192.png", texte: "Trouve le mot de 5 à 8 lettres en 6 essais, puis découvre sa définition." }
+  { nom: "Le Mot Juste", lien: "le-mot-juste/", icone: "le-mot-juste/icones/icone-192.png", texte: "Trouve le mot de 5 à 8 lettres en 6 essais, puis découvre sa définition.", meta: () => metaMotJuste() }
 ];
 // Icônes des exercices (SVG au trait, 24×24)
 const ICONES = {
@@ -91,24 +72,32 @@ const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const CHEVRON = '<svg class="chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
 
 const M = Meninges, e = M.echap;
-document.getElementById("jeux").innerHTML = JEUX.map(j => `<li><a class="carte-jeu" href="${e(j.lien)}">
-  <img class="pastille" src="${e(j.icone)}" alt="" width="48" height="48">
-  <span class="txt"><strong>${e(j.nom)}</strong><span class="resume">${e(j.texte)}</span></span>${CHEVRON}</a></li>`).join("");
-
 const auj = new Date().toISOString().slice(0, 10);
 const faitAuj = slug => M.historique(slug).some(h => h.date === auj);
-document.getElementById("exercices").innerHTML = M.EXERCICES.map(x => {
-  const r = M.meilleur(x.slug);
-  const meta = (r === null ? '<span class="nouveau">Pas encore joué</span>' : `<span>Record : ${e(M.formatScore(x.slug, r))}</span>`) +
-               (faitAuj(x.slug) ? '<span class="fait">✓ Fait aujourd\'hui</span>' : "");
-  return `<li><a class="carte-jeu" href="meninges/exercices/${x.slug}/" style="--c:${x.couleur}">
-    <span class="pastille">${svg(ICONES[x.slug] || "")}</span>
-    <span class="txt"><strong>${e(x.nom)}</strong><span class="resume">${e(x.resume)}</span><span class="meta">${meta}</span></span>${CHEVRON}
-  </a></li>`;
-}).join("");
-const nb = M.EXERCICES.filter(x => faitAuj(x.slug)).length;
-document.getElementById("jour").innerHTML = `<span>Aujourd'hui : ${nb} sur ${M.EXERCICES.length}</span><span class="barre-jour" aria-hidden="true">` +
-  M.EXERCICES.map(x => `<i class="${faitAuj(x.slug) ? "fait" : ""}" style="--c:${x.couleur}"></i>`).join("") + "</span>";
+const lireBrut = cle => { try { return JSON.parse(localStorage.getItem(cle)); } catch { return null; } };
+
+// Le Mot Juste : nombre de mots trouvés, lu dans son carnet (même site)
+const metaMotJuste = () => {
+  const carnet = lireBrut("motjuste-carnet") || [];
+  const ok = carnet.filter(x => x.gagne).length;
+  return carnet.length ? `<span>${ok} mot${ok > 1 ? "s" : ""} trouvé${ok > 1 ? "s" : ""}</span>` : '<span class="nouveau">Pas encore joué</span>';
+};
+
+const cartes = [
+  ...JEUX.map(j => `<li><a class="carte-jeu" href="${e(j.lien)}">
+    <img class="pastille" src="${e(j.icone)}" alt="" width="48" height="48">
+    <span class="txt"><strong>${e(j.nom)}</strong><span class="resume">${e(j.texte)}</span><span class="meta">${j.meta ? j.meta() : ""}</span></span>${CHEVRON}</a></li>`),
+  ...M.EXERCICES.map(x => {
+    const r = M.meilleur(x.slug);
+    const meta = (r === null ? '<span class="nouveau">Pas encore joué</span>' : `<span>Record : ${e(M.formatScore(x.slug, r))}</span>`) +
+                 (faitAuj(x.slug) ? '<span class="fait">✓ Fait aujourd\'hui</span>' : "");
+    return `<li><a class="carte-jeu" href="meninges/exercices/${x.slug}/" style="--c:${x.couleur}">
+      <span class="pastille">${svg(ICONES[x.slug] || "")}</span>
+      <span class="txt"><strong>${e(x.nom)}</strong><span class="resume">${e(x.resume)}</span><span class="meta">${meta}</span></span>${CHEVRON}
+    </a></li>`;
+  })
+];
+document.getElementById("jeux").innerHTML = cartes.join("");
 </script>
 </body>
 </html>
